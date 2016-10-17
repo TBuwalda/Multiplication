@@ -1,0 +1,13 @@
+h()
+R.home
+R.home()
+R.home(component = "home")
+path.expand(R.home(component="home"))
+R RHOME
+Sys.getenv("R_HOME")
+?Startup
+sessionInfo()
+setwd("/Users/trudybuwalda/Desktop/chunkProbabilities/")
+library("shiny")
+runApp("../chunkProbabilities/")
+runApp("../chunkProbabilities/")
