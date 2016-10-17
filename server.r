@@ -7,7 +7,9 @@ source("probabilityOfRetrieval.r")
 
 shinyServer(function(input, output, session) {
 
-  load("dat.Rdata")
+  if(exists("dat.Rdata")) {
+    load("dat.Rdata")
+  }
 
   params <- list(activationNoise = 0.2,
                   decay = 0.5,
@@ -38,16 +40,7 @@ shinyServer(function(input, output, session) {
     }
   }
 
-  observe({
-    input$decay
-    input$mp
-    input$ans
-    input$ol
-    input$simfun
 
-    updateSelectInput(session, "param_group",
-         selected = "Manual")
-  })
 
   observe({
     if(input$param_group == "Christian") {
@@ -57,6 +50,43 @@ shinyServer(function(input, output, session) {
       params$threshold <<- -1
       params$optimizedLearning <<- TRUE
       params$inputAct <<- 0
+      params$decay <<- -0.5
+
+      updateSelectInput(session, "simfun",
+        selected="christian")
+      updateSliderInput(session, "decay",
+        value=-0.5)
+      updateSliderInput(session, "mp",
+        value=1.5)
+      updateSliderInput(session, "ans",
+        value=0.25)
+      updateRadioButtons(session, "ol",
+          selected = "on")
+      updateSelectInput(session, "param_group",
+           selected = " ")
+    }
+
+    if(input$param_group == "Default") {
+      params$similarityFunction <<- "linear"
+      params$activationNoise <<- 0.2
+      params$mismatchPenalty <<- 5
+      params$threshold <<- -1
+      params$optimizedLearning <<- TRUE
+      params$inputAct <<- 0
+      params$decay <<- -0.5
+
+      updateSelectInput(session, "simfun",
+        selected="linear")
+      updateSliderInput(session, "decay",
+        value=-0.5)
+      updateSliderInput(session, "mp",
+        value=5)
+      updateSliderInput(session, "ans",
+        value=0.2)
+      updateRadioButtons(session, "ol",
+          selected = "on")
+      updateSelectInput(session, "param_group",
+           selected = " ")
     }
   })
 
@@ -131,16 +161,28 @@ shinyServer(function(input, output, session) {
     #toPlot$probability <- ifelse(is.na(toPlot$probability), 0, toPlot$probability)
     #toPlot$ratio <- ifelse(is.na(toPlot$ratio), 0, toPlot$ratio)
     
-    if(input$compare_data) {
-      ordering <- toPlot[toPlot$model == 0,]$answer
+    if(exists("dat.Rdata")) {
+      if(input$compare_data) {
+        ordering <- toPlot[toPlot$model == 0,]$answer
 
-      ggplot(data = toPlot, aes(x = answer, y = probability)) +
-        geom_bar(stat = "identity", position = "dodge", aes(color=factor(model), fill = factor(model))) +
-        scale_x_discrete(limits = ordering) +
-        theme(text = element_text(size=16)) +
-        coord_cartesian(ylim=c(0, 0.1)) + 
-        scale_fill_manual(values=c("turquoise3", "gray33"), guide=FALSE) +
-        scale_color_manual(values=c("gray33", "gray33"), guide=FALSE)
+        ggplot(data = toPlot, aes(x = answer, y = probability)) +
+          geom_bar(stat = "identity", position = "dodge", aes(color=factor(model), fill = factor(model))) +
+          scale_x_discrete(limits = ordering) +
+          theme(text = element_text(size=16)) +
+          coord_cartesian(ylim=c(0, input$ymax)) + 
+          scale_fill_manual(values=c("turquoise3", "gray33"), guide=FALSE) +
+          scale_color_manual(values=c("gray33", "gray33"), guide=FALSE)        
+      } else {
+        ordering <- toPlotProb$answer
+
+        ggplot(data = toPlotProb, aes(x = answer, y = probability, fill="manual")) +
+          geom_bar(stat = "identity", position = "dodge") +
+          scale_x_discrete(limits = ordering) +
+          theme(text = element_text(size=16)) +
+          coord_cartesian(ylim=c(0, input$ymax)) +
+          scale_fill_manual(values=c("gray33"), guide=FALSE) + 
+          scale_color_manual(values=c("gray33"), guide=FALSE)
+      }
     } else {
       ordering <- toPlotProb$answer
 
@@ -148,10 +190,11 @@ shinyServer(function(input, output, session) {
         geom_bar(stat = "identity", position = "dodge") +
         scale_x_discrete(limits = ordering) +
         theme(text = element_text(size=16)) +
-        coord_cartesian(ylim=c(0, 0.1)) +
+        coord_cartesian(ylim=c(0, input$ymax)) +
         scale_fill_manual(values=c("gray33"), guide=FALSE) + 
         scale_color_manual(values=c("gray33"), guide=FALSE)
-    }
+      }
+
 
     #hist(probs$probability,
     #  probability = TRUE,

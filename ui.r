@@ -18,7 +18,10 @@ shinyUI(bootstrapPage(
                             "4"),
             actionButton("request_button",
                             "Request"),
-            checkboxInput("compare_data", "Compare Model to Data", FALSE)
+            sliderInput("ymax", "Y-axis", 0, 1, 0.1, step=0.05)#,
+            #if(exists("dat.Rdata")) {
+            #  checkboxInput("compare_data", "Compare Model to Data", FALSE),
+            #}
       #      textInput("request_slot4",
       #                      "Slot 4",
       #                      "Slot 4"),
@@ -48,7 +51,7 @@ shinyUI(bootstrapPage(
               selectInput("simfun", "Similarity Function", c("Linear" = "linear", "Christian" = "christian"))
           )),
           column(3, wellPanel(
-              selectInput("param_group", "Parameter Settings", c("Manual", "Christian", "Default"))
+              selectInput("param_group", "Parameter Settings", c(" ", "Christian", "Default"))
           ))
         ),
 
